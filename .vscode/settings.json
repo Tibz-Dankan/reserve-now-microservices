@@ -1,3 +1,11 @@
 {
-  "cSpell.words": ["Dankan", "signin", "signup", "Tibz"]
+  "cSpell.words": [
+    "Dankan",
+    "dbname",
+    "gorm",
+    "signin",
+    "signup",
+    "sslmode",
+    "Tibz"
+  ]
 }

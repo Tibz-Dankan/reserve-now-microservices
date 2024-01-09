@@ -1,20 +1,22 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func Db() *sql.DB {
-	connectionString := os.Getenv("DATABASE_URL_RESERVE_NOW")
-	db, err := sql.Open("postgres", connectionString)
+func Db() *gorm.DB {
+
+	dsn := os.Getenv("DSN_RESERVE_NOW")
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("error occurred while connecting to the database", err)
+		log.Fatal("Failed to connect to the database", err)
 	}
 
 	fmt.Println("Connected to database successfully")
