@@ -3,27 +3,32 @@ package user
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/internal/config"
 )
 
 type User struct {
-	UserId      int    `json:"userId"`
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	PhoneNumber string `json:"phoneNumber"`
-	CreatedAt   string `json:"createdAt"`
-	UpdatedAt   string `json:"updatedAt"`
+	UserId                 int       `json:"id"`
+	FirstName              string    `json:"firstName,omitempty"`
+	LastName               string    `json:"lastName,omitempty"`
+	Email                  string    `json:"email"`
+	Password               string    `json:"-"`
+	Country                string    `json:"country"`
+	PasswordResetToken     time.Time `json:"-"`
+	PasswordResetExpiresAt time.Time `json:"-"`
+	CreatedAt              time.Time `json:"createdAt"`
+	UpdatedAt              time.Time `json:"updatedAt"`
 }
 
 var db = config.Db()
 
 func FindOne(userId int) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT "userId", "firstName", "lastName","phoneNumber",
+	err := db.QueryRow(`SELECT "userId", "firstName", "lastName","email",
                "createdAt","updatedAt" FROM _users WHERE "userId" = $1`,
 		userId).Scan(&user.UserId, &user.FirstName, &user.LastName,
-		&user.PhoneNumber, &user.CreatedAt, &user.UpdatedAt)
+		&user.Email, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -36,7 +41,7 @@ func FindOne(userId int) (User, error) {
 }
 
 func FindAll() ([]User, error) {
-	rows, err := db.Query(`SELECT "userId", "firstName", "lastName","phoneNumber",
+	rows, err := db.Query(`SELECT "userId", "firstName", "lastName","email",
                  "createdAt","updatedAt" FROM _users`)
 	if err != nil {
 		return nil, err
@@ -48,7 +53,7 @@ func FindAll() ([]User, error) {
 	for rows.Next() {
 		var usr User
 		err := rows.Scan(&usr.UserId, &usr.FirstName, &usr.LastName,
-			&usr.PhoneNumber, &usr.CreatedAt, &usr.UpdatedAt)
+			&usr.Email, &usr.CreatedAt, &usr.UpdatedAt)
 
 		if err != nil {
 			return users, err
