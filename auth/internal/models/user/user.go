@@ -10,8 +10,7 @@ import (
 
 type User struct {
 	UserId                 int       `json:"id"`
-	FirstName              string    `json:"firstName,omitempty"`
-	LastName               string    `json:"lastName,omitempty"`
+	Name                   string    `json:"name,omitempty"`
 	Email                  string    `json:"email"`
 	Password               string    `json:"-"`
 	Country                string    `json:"country"`
@@ -27,7 +26,7 @@ func FindOne(userId int) (User, error) {
 	var user User
 	err := db.QueryRow(`SELECT "userId", "firstName", "lastName","email",
                "createdAt","updatedAt" FROM _users WHERE "userId" = $1`,
-		userId).Scan(&user.UserId, &user.FirstName, &user.LastName,
+		userId).Scan(&user.UserId, &user.Name,
 		&user.Email, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -52,7 +51,7 @@ func FindAll() ([]User, error) {
 
 	for rows.Next() {
 		var usr User
-		err := rows.Scan(&usr.UserId, &usr.FirstName, &usr.LastName,
+		err := rows.Scan(&usr.UserId, &usr.Name,
 			&usr.Email, &usr.CreatedAt, &usr.UpdatedAt)
 
 		if err != nil {
