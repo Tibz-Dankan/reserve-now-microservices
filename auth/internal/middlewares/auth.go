@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models/user"
+	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models"
 	services "github.com/Tibz-Dankan/reserve-now-microservices/internal/services"
 
 	"github.com/golang-jwt/jwt"
@@ -60,7 +60,9 @@ func Auth(next http.Handler) http.Handler {
 		}
 		fmt.Println("userId", userId)
 
-		user, err := user.FindOne(userId)
+		User := models.User{}
+
+		user, err := User.FindOne(userId)
 		if err != nil {
 			services.AppError(err.Error(), 500, w)
 			return

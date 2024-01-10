@@ -1,4 +1,5 @@
-package user
+// package user
+package models
 
 import (
 	"errors"
