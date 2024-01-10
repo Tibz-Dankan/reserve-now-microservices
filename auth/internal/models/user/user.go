@@ -1,9 +1,11 @@
 package user
 
 import (
+	"errors"
 	"time"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/internal/config"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +23,7 @@ import (
 
 type User struct {
 	gorm.Model
-	ID                     uint           `gorm:"column:id;primaryKey;autoIncrement"`
+	ID                     int            `gorm:"column:id;primaryKey;autoIncrement"`
 	Name                   string         `gorm:"column:name"`
 	Email                  string         `gorm:"column:email;index"`
 	Password               string         `gorm:"column:password"`
@@ -35,38 +37,88 @@ type User struct {
 
 var db = config.Db()
 
-//  //Before create hook, hash the user password
-// func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-// 	u.UUID = uuid.New()
+// Hash password before creating user
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
+	if err != nil {
+		return err
+	}
 
-// 	if u.Role == "admin" {
-// 		return errors.New("invalid role")
-// 	}
-// 	return
-// }
+	u.Password = string(hashedPassword)
+	return
+}
 
-//  //Before save hook, hash the user password
-// func (u *User) BeforeSave(tx *gorm.DB) (err error) {
-// 	u.UUID = uuid.New()
+func (u *User) Create(user User) (int, error) {
+	db.Create(&user)
 
-// 	if u.Role == "admin" {
-// 		return errors.New("invalid role")
-// 	}
-// 	return
-// }
+	return user.ID, nil
+}
 
-func (u *User) FindOne(userId int) (User, error) {
+func (u *User) FindOne(id int) (User, error) {
 	var user User
-	// db.First(&user, 10)
-	db.First(&user, "id = ?", userId)
+	db.First(&user, id)
+
+	return user, nil
+}
+
+func (u *User) FindByEMail(email string) (User, error) {
+	var user User
+	db.First(&user, "email = ?", email)
+
+	return user, nil
+}
+
+func (u *User) FindByPasswordResetToken(passwordResetToken string) (User, error) {
+	var user User
+	db.First(&user, "passwordResetToken = ?", passwordResetToken)
 
 	return user, nil
 }
 
 func (u *User) FindAll() ([]User, error) {
-	var user []User
-	// result := db.Find(&user)
-	db.Find(&user)
+	var users []User
+	db.Find(&users)
 
-	return user, nil
+	return users, nil
+}
+
+// Update updates one user in the database, using the information
+// stored in the receiver u
+func (u *User) Update() error {
+	db.Save(&u)
+
+	return nil
+}
+
+func (u *User) Delete(id int) error {
+	db.Delete(&User{}, id)
+
+	return nil
+}
+
+// ResetPassword is the method we will use to change a user's password.
+func (u *User) ResetPassword(password string) error {
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return err
+	}
+
+	db.Model(&User{}).Where("id = ?", u.ID).Update("password", hashedPassword)
+
+	return nil
+}
+
+func (u *User) PasswordMatches(plainTextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainTextPassword))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	return true, nil
 }
