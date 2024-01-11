@@ -3,6 +3,8 @@ package models
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/internal/config"
@@ -26,7 +28,7 @@ type User struct {
 	gorm.Model
 	ID                     int            `gorm:"column:id;primaryKey;autoIncrement"`
 	Name                   string         `gorm:"column:name"`
-	Email                  string         `gorm:"column:email;index"`
+	Email                  string         `gorm:"column:email;uniqueIndex:compositeindex"`
 	Password               string         `gorm:"column:password"`
 	Country                string         `gorm:"column:country"`
 	PasswordResetToken     *string        `gorm:"column:passwordResetToken;index"`
@@ -37,6 +39,14 @@ type User struct {
 }
 
 var db = config.Db()
+
+func DBAutoMigrate() {
+	err := db.AutoMigrate(&User{})
+	if err != nil {
+		log.Fatal("Failed to make auto migration", err)
+	}
+	fmt.Println("Auto Migration successful")
+}
 
 // Hash password before creating user
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
@@ -50,8 +60,11 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (u *User) Create(user User) (int, error) {
-	db.Create(&user)
+	result := db.Create(&user)
 
+	if result.Error != nil {
+		return 0, result.Error
+	}
 	return user.ID, nil
 }
 
