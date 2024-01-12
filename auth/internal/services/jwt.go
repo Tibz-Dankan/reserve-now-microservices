@@ -1,17 +1,26 @@
 package services
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
 
-func SignJWTToken(userId int) *jwt.Token {
-	// Create a new token object, specifying signing method and the claims
+func SignJWTToken(userId int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId": userId,
-		"nbf":    time.Date(2015, 10, 10, 12, 0, 0, 0, time.UTC).Unix(),
+		"exp":    time.Now().Add(3 * time.Hour),
 	})
 
-	return token
+	secretKey := os.Getenv("JWT_SECRET")
+	var jwtSecretKey = []byte(secretKey)
+
+	accessToken, err := token.SignedString(jwtSecretKey)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign JWT token: %v", err)
+	}
+
+	return accessToken, nil
 }
