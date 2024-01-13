@@ -1,4 +1,3 @@
-// package user
 package models
 
 import (
@@ -12,17 +11,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// type User struct {
-// 	UserId                 int       `json:"id"`
-// 	Name                   string    `json:"name,omitempty"`
-// 	Email                  string    `json:"email"`
-// 	Password               string    `json:"-"`
-// 	Country                string    `json:"country"`
-// 	PasswordResetToken     time.Time `json:"-"`
-// 	PasswordResetExpiresAt time.Time `json:"-"`
-// 	CreatedAt              time.Time `json:"createdAt"`
-// 	UpdatedAt              time.Time `json:"updatedAt"`
-// }
+type Role string
+
+const (
+	Admin  Role = "admin"
+	Client Role = "client"
+	Staff  Role = "staff"
+)
 
 type User struct {
 	gorm.Model
@@ -33,6 +28,7 @@ type User struct {
 	Country                string         `gorm:"column:country"`
 	PasswordResetToken     *string        `gorm:"column:passwordResetToken;index"`
 	PasswordResetExpiresAt *time.Time     `gorm:"column:passwordResetExpiresAt"`
+	Role                   Role           `gorm:"column:role;enum('admin', 'client', 'staff');default:'client'"`
 	CreatedAt              time.Time      `gorm:"column:createdAt"`
 	UpdatedAt              time.Time      `gorm:"column:updatedAt"`
 	DeletedAt              gorm.DeletedAt `gorm:"index"`
