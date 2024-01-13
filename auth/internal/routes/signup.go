@@ -39,11 +39,27 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		services.AppError(err.Error(), 400, w)
 		return
 	}
-	// TODO: login user upon creating account
+
+	accessToken, err := services.SignJWTToken(savedUser.ID)
+	if err != nil {
+		services.AppError(err.Error(), 500, w)
+		return
+	}
+
+	response := map[string]interface{}{
+		"status":      "success",
+		"message":     "Signup successfully",
+		"userId":      user.ID,
+		"firstName":   user.Name,
+		"email":       user.Email,
+		"role":        user.Role,
+		"country":     user.Country,
+		"accessToken": accessToken,
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "Signup successfully"})
+	json.NewEncoder(w).Encode(response)
 }
 
 func SignUpRoute(router *mux.Router) {
