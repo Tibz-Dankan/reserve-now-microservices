@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models"
@@ -19,42 +18,49 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Name == "" || user.Email == "" || user.Country == "" || user.Password == "" {
+		services.AppError("Please fill out all fields!", 400, w)
+		return
+	}
+
 	savedUser, err := user.FindByEMail(user.Email)
 	if err != nil {
 		services.AppError(err.Error(), 400, w)
 		return
 	}
 
-	fmt.Println("savedUser", savedUser)
-
 	if savedUser.ID > 0 {
 		services.AppError("Email already registered!", 400, w)
 		return
 	}
 
-	// var userId int
-	// userId, err := user.Create(user)
-	_, err = user.Create(user)
+	// TODO: To implement more scalable approach to set user roles
+	user.SetRole("client")
+	userId, err := user.Create(user)
+
 	if err != nil {
 		services.AppError(err.Error(), 400, w)
 		return
 	}
 
-	accessToken, err := services.SignJWTToken(savedUser.ID)
+	accessToken, err := services.SignJWTToken(userId)
 	if err != nil {
 		services.AppError(err.Error(), 500, w)
 		return
 	}
 
+	newUser := map[string]interface{}{
+		"id":      userId,
+		"name":    user.Name,
+		"email":   user.Email,
+		"role":    user.Role,
+		"country": user.Country,
+	}
 	response := map[string]interface{}{
 		"status":      "success",
 		"message":     "Signup successfully",
-		"userId":      user.ID,
-		"firstName":   user.Name,
-		"email":       user.Email,
-		"role":        user.Role,
-		"country":     user.Country,
 		"accessToken": accessToken,
+		"user":        newUser,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
