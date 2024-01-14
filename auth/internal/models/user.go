@@ -1,9 +1,7 @@
 package models
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -11,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/internal/config"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -154,13 +153,7 @@ func (u *User) FindByPasswordResetToken(resetToken string) (User, error) {
 }
 
 func (u *User) CreatePasswordResetToken() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		panic(err)
-	}
-
-	resetToken := base64.StdEncoding.EncodeToString(b)
+	resetToken := uuid.NewString()
 
 	hashedToken := sha256.New()
 	hashedToken.Write([]byte(resetToken))
