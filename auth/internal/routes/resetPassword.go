@@ -20,8 +20,8 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newPassword := user.Password
-	token := r.URL.Query().Get("token")
-	// resetToken := mux.Vars(r)["resetToken"]
+	// token := r.URL.Query().Get("token")
+	token := mux.Vars(r)["resetToken"]
 
 	user, err = user.FindByPasswordResetToken(token)
 	if err != nil {
@@ -63,5 +63,5 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResetPasswordRoute(router *mux.Router) {
-	router.HandleFunc("/api/v1/auth/reset-password", resetPassword).Methods("PATCH")
+	router.HandleFunc("/api/v1/auth/reset-password/{resetToken}", resetPassword).Methods("PATCH")
 }
