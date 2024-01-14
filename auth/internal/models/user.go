@@ -132,3 +132,10 @@ func (u *User) PasswordMatches(plainTextPassword string) (bool, error) {
 
 	return true, nil
 }
+
+func (u *User) SetRole(role Role) error {
+	// TODO: To implement vigorous check for the role being
+
+	u.Role = role
+	return nil
+}
