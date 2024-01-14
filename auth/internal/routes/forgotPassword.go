@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models"
@@ -30,8 +31,14 @@ func forgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// generate token (base64 string) use methods for the user struct
-	// send it email service
+	resetToken, err := user.CreatePasswordResetToken()
+	if err != nil {
+		services.AppError(err.Error(), 500, w)
+		return
+	}
+
+	fmt.Println("Password reset Token  ====> ", resetToken)
+	// send it email service(api call to the email service)
 	// send json payload {type: resetPassword, token, userName}
 
 	response := map[string]interface{}{

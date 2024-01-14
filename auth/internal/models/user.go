@@ -1,6 +1,10 @@
 package models
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -21,14 +25,15 @@ const (
 
 type User struct {
 	gorm.Model
-	ID                     int            `gorm:"column:id;primaryKey;autoIncrement"`
-	Name                   string         `gorm:"column:name"`
-	Email                  string         `gorm:"column:email;uniqueIndex:compositeindex"`
-	Password               string         `gorm:"column:password"`
-	Country                string         `gorm:"column:country"`
-	PasswordResetToken     *string        `gorm:"column:passwordResetToken;index"`
-	PasswordResetExpiresAt *time.Time     `gorm:"column:passwordResetExpiresAt"`
-	Role                   Role           `gorm:"column:role;enum('admin', 'client', 'staff');default:'client'"`
+	ID   int    `gorm:"column:id;primaryKey;autoIncrement"`
+	Name string `gorm:"column:name;not null"`
+	// Email                  string         `gorm:"column:email;uniqueIndex:compositeindex"`
+	Email                  string         `gorm:"column:email;unique;not null"`
+	Password               string         `gorm:"column:password;not null"`
+	Country                string         `gorm:"column:country;not null"`
+	PasswordResetToken     string         `gorm:"column:passwordResetToken;index"`
+	PasswordResetExpiresAt time.Time      `gorm:"column:passwordResetExpiresAt"`
+	Role                   Role           `gorm:"column:role;enum('admin', 'client', 'staff');default:'client';not null"`
 	CreatedAt              time.Time      `gorm:"column:createdAt"`
 	UpdatedAt              time.Time      `gorm:"column:updatedAt"`
 	DeletedAt              gorm.DeletedAt `gorm:"index"`
@@ -74,13 +79,6 @@ func (u *User) FindOne(id int) (User, error) {
 func (u *User) FindByEMail(email string) (User, error) {
 	var user User
 	db.First(&user, "email = ?", email)
-
-	return user, nil
-}
-
-func (u *User) FindByPasswordResetToken(passwordResetToken string) (User, error) {
-	var user User
-	db.First(&user, "passwordResetToken = ?", passwordResetToken)
 
 	return user, nil
 }
@@ -138,4 +136,41 @@ func (u *User) SetRole(role Role) error {
 
 	u.Role = role
 	return nil
+}
+
+func (u *User) FindByPasswordResetToken(resetToken string) (User, error) {
+	var user User
+	hashedToken := sha256.New()
+	hashedToken.Write([]byte(resetToken))
+	hashedTokenByteSlice := hashedToken.Sum(nil)
+	hashedTokenString := hex.EncodeToString(hashedTokenByteSlice)
+
+	result := db.Where("\"passwordResetToken\" = ? AND \"passwordResetExpiresAt\" > ?", hashedTokenString, time.Now()).Find(&user)
+	if result.Error != nil {
+		return user, result.Error
+	}
+
+	return user, nil
+}
+
+func (u *User) CreatePasswordResetToken() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+
+	resetToken := base64.StdEncoding.EncodeToString(b)
+
+	hashedToken := sha256.New()
+	hashedToken.Write([]byte(resetToken))
+	hashedTokenByteSlice := hashedToken.Sum(nil)
+	hashedTokenString := hex.EncodeToString(hashedTokenByteSlice)
+
+	u.PasswordResetToken = hashedTokenString
+	u.PasswordResetExpiresAt = time.Now().Add(20 * time.Minute)
+
+	db.Save(&u)
+
+	return resetToken, nil
 }
