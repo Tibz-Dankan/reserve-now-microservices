@@ -35,7 +35,12 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: To implement more scalable approach to set user roles
-	user.SetRole("client")
+	err = user.SetRole("client")
+	if err != nil {
+		services.AppError(err.Error(), 400, w)
+		return
+	}
+
 	userId, err := user.Create(user)
 
 	if err != nil {

@@ -31,7 +31,7 @@ type User struct {
 	Country                string         `gorm:"column:country;not null"`
 	PasswordResetToken     string         `gorm:"column:passwordResetToken;index"`
 	PasswordResetExpiresAt time.Time      `gorm:"column:passwordResetExpiresAt"`
-	Role                   Role           `gorm:"column:role;enum('admin', 'client', 'staff');default:'client';not null"`
+	Role                   string         `gorm:"column:role;enum('admin', 'client', 'staff');default:'client';not null"`
 	CreatedAt              time.Time      `gorm:"column:createdAt"`
 	UpdatedAt              time.Time      `gorm:"column:updatedAt"`
 	DeletedAt              gorm.DeletedAt `gorm:"index"`
@@ -130,8 +130,24 @@ func (u *User) PasswordMatches(plainTextPassword string) (bool, error) {
 	return true, nil
 }
 
-func (u *User) SetRole(role Role) error {
-	// TODO: To implement vigorous check for the role being
+func (u *User) ValidRole(role string) bool {
+	roles := []string{"admin", "client", "staff"}
+
+	for _, r := range roles {
+		if r == role {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (u *User) SetRole(role string) error {
+	isValidRole := u.ValidRole(role)
+
+	if !isValidRole {
+		return errors.New("invalid user role")
+	}
 
 	u.Role = role
 	return nil
