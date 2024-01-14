@@ -112,6 +112,7 @@ func (u *User) ResetPassword(password string) error {
 	}
 
 	db.Model(&User{}).Where("id = ?", u.ID).Update("password", hashedPassword)
+	db.Model(&User{}).Where("id = ?", u.ID).Update("\"passwordResetExpiresAt\"", time.Now())
 
 	return nil
 }
