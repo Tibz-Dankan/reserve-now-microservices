@@ -20,7 +20,6 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newPassword := user.Password
-	// token := r.URL.Query().Get("token")
 	token := mux.Vars(r)["resetToken"]
 
 	user, err = user.FindByPasswordResetToken(token)
