@@ -37,7 +37,7 @@ func forgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Password reset Token in the controller ====> ", resetToken)
+	fmt.Println("Password reset Token  ====> ", resetToken)
 	// send it email service(api call to the email service)
 	// send json payload {type: resetPassword, token, userName}
 
