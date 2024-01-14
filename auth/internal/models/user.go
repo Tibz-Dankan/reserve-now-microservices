@@ -24,9 +24,8 @@ const (
 
 type User struct {
 	gorm.Model
-	ID   int    `gorm:"column:id;primaryKey;autoIncrement"`
-	Name string `gorm:"column:name;not null"`
-	// Email                  string         `gorm:"column:email;uniqueIndex:compositeindex"`
+	ID                     int            `gorm:"column:id;primaryKey;autoIncrement"`
+	Name                   string         `gorm:"column:name;not null"`
 	Email                  string         `gorm:"column:email;unique;not null"`
 	Password               string         `gorm:"column:password;not null"`
 	Country                string         `gorm:"column:country;not null"`
