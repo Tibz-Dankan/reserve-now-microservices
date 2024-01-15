@@ -38,8 +38,19 @@ func forgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Password reset Token  ====> ", resetToken)
-	// send it email service(api call to the email service)
-	// send json payload {type: resetPassword, token, userName}
+	resetURL := "http//localhost:5173/reset-password/" + resetToken
+	fmt.Println("Password resetURL  ====> ", resetURL)
+
+	email := services.Email{Recipient: user.Email, UserName: user.Name}
+
+	fmt.Println("recipient ====>", email.Recipient)
+	fmt.Println("UserName ====>", email.UserName)
+
+	err = email.SendPasswordReset(resetURL)
+	if err != nil {
+		services.AppError(err.Error(), 500, w)
+		return
+	}
 
 	response := map[string]interface{}{
 		"status":  "success",
