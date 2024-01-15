@@ -4,6 +4,7 @@
     "Dankan",
     "dbname",
     "gorm",
+    "sendgrid",
     "signin",
     "signup",
     "sslmode",
