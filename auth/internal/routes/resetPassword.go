@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models"
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/services"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/models"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/services"
 	"github.com/gorilla/mux"
 )
 

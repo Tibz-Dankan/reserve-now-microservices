@@ -8,7 +8,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/config"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/config"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"

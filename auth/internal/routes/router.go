@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/middlewares"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/middlewares"
 
 	"github.com/gorilla/mux"
 )

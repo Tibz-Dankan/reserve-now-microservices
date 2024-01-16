@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models"
-	services "github.com/Tibz-Dankan/reserve-now-microservices/internal/services"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/models"
+	services "github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/services"
 
 	"github.com/golang-jwt/jwt"
 )
