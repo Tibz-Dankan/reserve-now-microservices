@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/models"
-	"github.com/Tibz-Dankan/reserve-now-microservices/internal/routes"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/models"
+	"github.com/Tibz-Dankan/reserve-now-microservices/auth/internal/routes"
 
 	"github.com/rs/cors"
 )
