@@ -16,6 +16,7 @@ func AppRouter() *mux.Router {
 	SignInRoute(router)
 	ForgotPasswordRoute(router)
 	ResetPasswordRoute(router)
+	verifyAuthRoute(router)
 
 	return router
 }
