@@ -23,7 +23,6 @@ const (
 )
 
 type User struct {
-	gorm.Model
 	ID                     int            `gorm:"column:id;primaryKey;autoIncrement"`
 	Name                   string         `gorm:"column:name;not null"`
 	Email                  string         `gorm:"column:email;unique;not null"`
@@ -34,7 +33,7 @@ type User struct {
 	Role                   string         `gorm:"column:role;enum('admin', 'client', 'staff');default:'client';not null"`
 	CreatedAt              time.Time      `gorm:"column:createdAt"`
 	UpdatedAt              time.Time      `gorm:"column:updatedAt"`
-	DeletedAt              gorm.DeletedAt `gorm:"index"`
+	DeletedAt              gorm.DeletedAt `gorm:"column:deletedAt;index"`
 }
 
 var db = config.Db()
