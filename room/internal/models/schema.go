@@ -46,10 +46,10 @@ func (JSON) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 
 type Room struct {
 	ID              int            `gorm:"column:id;primaryKey;autoIncrement"`
-	RoomName        string         `gorm:"column:roomName;not null;index"`
+	RoomName        string         `gorm:"column:roomName;unique;not null;index"`
 	RoomType        string         `gorm:"column:roomType;not null;index"` //single, double, suite, deluxe, etc
 	Capacity        JSON           `gorm:"column:capacity;not null"`       // format { adults: 2, children: 1 }
-	IsAvailable     bool           `gorm:"column:isAvailable;not null;default:TRUE"`
+	IsAvailable     bool           `gorm:"column:isAvailable;default:TRUE"`
 	OccupancyStatus string         `gorm:"column:occupancyStatus;enum('vacant', 'occupied', 'undergoing cleaning/maintenance');default:'vacant';not null"`
 	Amenities       JSON           `gorm:"column:amenities;"`
 	View            string         `gorm:"column:view"`
