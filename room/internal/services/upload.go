@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go/v4"
@@ -38,8 +39,7 @@ func (upload *Upload) initStorageBucket() (*storage.BucketHandle, error) {
 	fmt.Println("currentDir ===> ", currentDirPath)
 
 	upload.BaseURL = "https://firebasestorage.googleapis.com/v0/b/"
-	// storageBucket := os.Getenv("STORAGE_BUCKET")
-	storageBucket := "reserve-now-677ca.appspot.com" //To be removed
+	storageBucket := os.Getenv("STORAGE_BUCKET")
 	upload.StorageBucketBucket = storageBucket
 
 	configStorage := &firebase.Config{
@@ -65,7 +65,6 @@ func (upload *Upload) initStorageBucket() (*storage.BucketHandle, error) {
 
 }
 
-// upload it to firebase storage cloud store
 func (upload *Upload) Add(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
 
 	filePath := upload.FilePath
@@ -104,21 +103,26 @@ func (upload *Upload) transformFilePath() (string, error) {
 		return "", errors.New("no file path provided")
 	}
 
-	path = strings.ReplaceAll(path, "/", "%")
-	path = strings.ReplaceAll(path, " ", "%")
+	path = strings.ReplaceAll(path, "/", "%2F")
+	path = strings.ReplaceAll(path, " ", "%20")
+	path = strings.ReplaceAll(path, "?", "%3F")
+	path = strings.ReplaceAll(path, "&", "%26")
+	path = strings.ReplaceAll(path, "=", "%3D")
+	path = strings.ReplaceAll(path, ":", "%3A")
+	path = strings.ReplaceAll(path, ",", "%2C")
 
 	return path, nil
 }
 
 func (upload *Upload) getDownloadURL() (string, error) {
+	start := time.Now()
 
 	transformedFilePath, err := upload.transformFilePath()
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("transformed file path ===> ", transformedFilePath)
 
-	FIREBASE_STORAGE_URL := upload.BaseURL + upload.StorageBucketBucket + "/0/" + transformedFilePath
+	FIREBASE_STORAGE_URL := upload.BaseURL + upload.StorageBucketBucket + "/o/" + transformedFilePath
 
 	req, err := http.NewRequest(http.MethodGet, FIREBASE_STORAGE_URL, nil)
 	if err != nil {
@@ -148,9 +152,6 @@ func (upload *Upload) getDownloadURL() (string, error) {
 		Etag               string `json:"etag"`
 		DownloadTokens     string `json:"downloadTokens"`
 	}
-	// type ResponseError struct {
-	// 	StatusCode int `json:"statusCode"`
-	// }
 
 	if res.StatusCode != http.StatusOK {
 		_, err := io.ReadAll(res.Body)
@@ -162,22 +163,17 @@ func (upload *Upload) getDownloadURL() (string, error) {
 
 	fmt.Printf("firebase-storage-service: status code: %d\n", res.StatusCode)
 	rBody, _ := io.ReadAll(res.Body)
-	fmt.Printf("firebase-storage-service: response body: %s\n", rBody)
 
 	response := Response{}
 	json.NewDecoder(strings.NewReader(string(rBody))).Decode(&response)
 
-	fmt.Printf("response.DownloadTokens : %s\n", response.DownloadTokens)
-
 	downloadURL := FIREBASE_STORAGE_URL + "?alt=media&token=" + response.DownloadTokens
 	upload.DownloadURL = downloadURL
 
-	fmt.Printf("downloadURL : %s\n", downloadURL)
+	fmt.Printf(
+		"Firebase storage request duration : %s\n",
+		time.Since(start),
+	)
 
 	return downloadURL, nil
 }
-
-// func (upload *Upload) buildFileDownloadURL(downloadToken string) (string, error) {
-// // {"url": "https://firebasestorage.googleapis.com/v0/b/owino-dd2f6.appspot.com/o/prod%2Fchat%2F1695688317408_Screenshot%20from%202023-09-25%2001-08-47.png?alt=media&token=3e6a8289-08b6-4605-a16a-bf5241d36037",
-// // "path": "chat/1695688317408_Screenshot from 2023-09-25 01-08-47.png", "type": "image"}
-// }
