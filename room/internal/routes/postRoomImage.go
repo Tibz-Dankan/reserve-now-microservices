@@ -1,13 +1,43 @@
 package routes
 
 import (
+	"fmt"
+	"math/rand"
 	"net/http"
+	"strconv"
 
+	"github.com/Tibz-Dankan/reserve-now-microservices/room/internal/services"
 	"github.com/gorilla/mux"
 )
 
 func postRoomImage(w http.ResponseWriter, r *http.Request) {
-	//   TODO: post room image operation here
+
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	if err != nil {
+		services.AppError("Unable to parse form", 400, w)
+		return
+	}
+
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		services.AppError(err.Error(), 400, w)
+		return
+	}
+	defer file.Close()
+
+	randNumStr := strconv.Itoa(rand.Intn(9000) + 1000)
+	filePath := "go/rooms/" + randNumStr + "_" + fileHeader.Filename
+
+	upload := services.Upload{FilePath: filePath}
+
+	imageUrl, err := upload.Add(file, fileHeader)
+	if err != nil {
+		services.AppError(err.Error(), 500, w)
+		return
+	}
+
+	fmt.Println("imageUrl ===> ", imageUrl)
+	// save image in the database
 
 }
 
