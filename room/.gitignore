@@ -1,4 +1,3 @@
 .env
 .vscode
-# ./config/serviceAccountKey.json
-config/*.json
+serviceAccountKey.json
