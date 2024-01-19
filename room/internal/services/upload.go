@@ -36,8 +36,6 @@ func (upload *Upload) initStorageBucket() (*storage.BucketHandle, error) {
 		return nil, err
 	}
 
-	fmt.Println("currentDir ===> ", currentDirPath)
-
 	upload.BaseURL = "https://firebasestorage.googleapis.com/v0/b/"
 	storageBucket := os.Getenv("STORAGE_BUCKET")
 	upload.StorageBucketBucket = storageBucket
@@ -94,6 +92,64 @@ func (upload *Upload) Add(file multipart.File, fileHeader *multipart.FileHeader)
 	}
 
 	return url, nil
+}
+
+func (upload *Upload) Update(file multipart.File, fileHeader *multipart.FileHeader, savedFilePath string) (string, error) {
+
+	filePath := upload.FilePath
+	if filePath == "" {
+		return "", errors.New("no file path provided")
+	}
+
+	bucket, err := upload.initStorageBucket()
+	if err != nil {
+		return "", err
+	}
+
+	wc := bucket.Object(filePath).NewWriter(context.Background())
+	_, err = io.Copy(wc, file)
+	if err != nil {
+		return "", err
+	}
+
+	err = wc.Close()
+	if err != nil {
+		return "", err
+	}
+
+	url, err := upload.getDownloadURL()
+	if err != nil {
+		return "", err
+	}
+
+	if url != "" {
+		if err := upload.Delete(savedFilePath); err != nil {
+			return "", err
+		}
+
+		fmt.Println("file deleted from storage using path ==>", savedFilePath)
+	}
+
+	return url, nil
+}
+
+func (upload *Upload) Delete(filePath string) error {
+
+	if filePath == "" {
+		return errors.New("no file path provided")
+	}
+
+	bucket, err := upload.initStorageBucket()
+	if err != nil {
+		return err
+	}
+	obj := bucket.Object(filePath)
+
+	if err := obj.Delete(context.Background()); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (upload *Upload) transformFilePath() (string, error) {

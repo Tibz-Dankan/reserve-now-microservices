@@ -39,7 +39,7 @@ func (ri *RoomImage) Update(id int) error {
 	return nil
 }
 
-func (ri *RoomImage) Delete(id int) error {
+func (ri *RoomImage) DeleteByRoomId(id int) error {
 	err := db.Delete(&RoomImage{}, "roomId = ?", ri.ID).Error
 	if err != nil {
 		return err
