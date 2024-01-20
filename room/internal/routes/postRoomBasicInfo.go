@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Tibz-Dankan/reserve-now-microservices/room/internal/models"
@@ -9,16 +10,30 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type CreateRoom struct {
+	RoomName  string `json:"roomName"`
+	RoomType  string `json:"roomType"`
+	Capacity  string `json:"capacity"`
+	Price     string `json:"price"`
+	Amenities string `json:"amenities"`
+	View      string `json:"view"`
+}
+
 func postRoomBasicInfo(w http.ResponseWriter, r *http.Request) {
 	room := models.Room{}
+	roomInputData := CreateRoom{}
 
-	err := json.NewDecoder(r.Body).Decode(&room)
+	fmt.Println("r.Body info from the frontend", r.Body)
+	// err := json.NewDecoder(r.Body).Decode(&room)
+	err := json.NewDecoder(r.Body).Decode(&roomInputData)
 	if err != nil {
 		services.AppError(err.Error(), 400, w)
 		return
 	}
 
-	if room.RoomName == "" || room.RoomType == "" {
+	fmt.Println("room info from the frontend", room)
+
+	if roomInputData.RoomName == "" || roomInputData.RoomType == "" {
 		services.AppError("Missing room name or type!", 400, w)
 		return
 	}
@@ -43,6 +58,8 @@ func postRoomBasicInfo(w http.ResponseWriter, r *http.Request) {
 		services.AppError(room.RoomName+" already exists!", 400, w)
 		return
 	}
+
+	fmt.Println("About to create a room")
 
 	roomId, err := room.Create(room)
 
