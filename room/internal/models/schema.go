@@ -15,11 +15,11 @@ type Room struct {
 	View            string         `gorm:"column:view"`
 	Policy          string         `gorm:"column:policy"`
 	AdditionalNotes string         `gorm:"column:additionalNotes"`
-	RoomImages      []RoomImage    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	RoomCapacity    RoomCapacity   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	RoomPrice       RoomPrice      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	RoomPublicity   RoomPublicity  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	RoomAmenities   []RoomAmenity  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Images          []RoomImage    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Capacity        RoomCapacity   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Price           RoomPrice      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Publicity       RoomPublicity  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Amenities       []RoomAmenity  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	RoomBeds        []RoomBed      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	CreatedAt       time.Time      `gorm:"column:createdAt"`
 	UpdatedAt       time.Time      `gorm:"column:updatedAt"`
@@ -86,7 +86,7 @@ type RoomBed struct {
 
 type Amenity struct {
 	ID            int            `gorm:"column:id;primaryKey;autoIncrement"`
-	item          string         `gorm:"column:bedType;not null;"`
+	Item          string         `gorm:"column:item;unique;not null;"`
 	RoomAmenities []RoomAmenity  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	CreatedAt     time.Time      `gorm:"column:createdAt"`
 	UpdatedAt     time.Time      `gorm:"column:updatedAt"`
