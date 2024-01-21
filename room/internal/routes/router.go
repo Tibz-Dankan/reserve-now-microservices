@@ -23,5 +23,10 @@ func AppRouter() *mux.Router {
 	searchRoomsRoute(router)
 	deleteRoomRoute(router)
 
+	postRoomAmenityRoute(router)
+	getAllRoomAmenitiesRoute(router)
+	updateRoomAmenityRoute(router)
+	deleteRoomAmenityRoute(router)
+
 	return router
 }

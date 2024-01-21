@@ -42,16 +42,16 @@ func publishRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if room.IsPublished() {
-		services.AppError("Room already published", 400, w)
-		return
-	}
+	// if room.IsPublished() {
+	// 	services.AppError("Room already published", 400, w)
+	// 	return
+	// }
 
-	err = room.UpdateAsPublished(IntRoomId)
-	if err != nil {
-		services.AppError(err.Error(), 500, w)
-		return
-	}
+	// err = room.UpdateAsPublished(IntRoomId)
+	// if err != nil {
+	// 	services.AppError(err.Error(), 500, w)
+	// 	return
+	// }
 
 	room, err = room.FindOne(IntRoomId)
 	if err != nil {

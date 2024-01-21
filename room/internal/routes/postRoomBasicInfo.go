@@ -38,12 +38,12 @@ func postRoomBasicInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !room.IsValidRoomCapacity() {
+	if !room.IsValidRoomCapacity(roomInputData.Capacity) {
 		services.AppError("Please provide at least the number of adults", 400, w)
 		return
 	}
 
-	if !room.IsValidRoomPrice() {
+	if !room.IsValidRoomPrice(roomInputData.Price) {
 		services.AppError("Please provide the price amount and currency", 400, w)
 		return
 	}

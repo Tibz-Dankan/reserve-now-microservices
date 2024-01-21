@@ -11,6 +11,10 @@ import (
 	"github.com/Tibz-Dankan/reserve-now-microservices/room/internal/services"
 )
 
+type UserKey string
+
+const userContextKey UserKey = "AuthUser"
+
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -64,9 +68,6 @@ func Auth(next http.Handler) http.Handler {
 		services.AppError(response.Message, res.StatusCode, w)
 
 		user := AuthUser{UserId: response.UserId}
-
-		type UserKey int
-		const userContextKey UserKey = iota
 
 		ctx := context.WithValue(r.Context(), userContextKey, user)
 
