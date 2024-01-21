@@ -67,6 +67,7 @@ func verifyAuth(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"status":  "success",
 		"message": "user is authorized",
+		"userId":  userId,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

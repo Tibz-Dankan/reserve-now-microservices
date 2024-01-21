@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,7 +34,14 @@ func Auth(next http.Handler) http.Handler {
 		type Response struct {
 			Message string `json:"message"`
 			Status  string `json:"status"`
+			UserId  int    `json:"userId"`
 		}
+
+		type AuthUser struct {
+			UserId int `json:"userId"`
+		}
+
+		response := Response{}
 
 		if res.StatusCode != http.StatusOK {
 			rBody, err := io.ReadAll(res.Body)
@@ -43,7 +51,6 @@ func Auth(next http.Handler) http.Handler {
 				return
 			}
 
-			response := Response{}
 			json.NewDecoder(strings.NewReader(string(rBody))).Decode(&response)
 			services.AppError(response.Message, res.StatusCode, w)
 			return
@@ -53,6 +60,16 @@ func Auth(next http.Handler) http.Handler {
 		resBody, _ := io.ReadAll(res.Body)
 		fmt.Printf("auth-service: response body: %s\n", resBody)
 
-		next.ServeHTTP(w, r)
+		json.NewDecoder(strings.NewReader(string(resBody))).Decode(&response)
+		services.AppError(response.Message, res.StatusCode, w)
+
+		user := AuthUser{UserId: response.UserId}
+
+		type UserKey int
+		const userContextKey UserKey = iota
+
+		ctx := context.WithValue(r.Context(), userContextKey, user)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
