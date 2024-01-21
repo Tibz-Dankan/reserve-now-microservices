@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,28 +11,42 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type UpdateRoom struct {
+	RoomName  string `json:"roomName"`
+	RoomType  string `json:"roomType"`
+	Capacity  string `json:"capacity"`
+	Price     string `json:"price"`
+	Amenities string `json:"amenities"`
+	View      string `json:"view"`
+}
+
 func updateRoomBasicInfo(w http.ResponseWriter, r *http.Request) {
 	room := models.Room{}
 	roomId := mux.Vars(r)["id"]
+	roomInputData := UpdateRoom{}
 
-	err := json.NewDecoder(r.Body).Decode(&room)
+	fmt.Println("r.Body info from the frontend", r.Body)
+	// err := json.NewDecoder(r.Body).Decode(&room)
+	err := json.NewDecoder(r.Body).Decode(&roomInputData)
 	if err != nil {
 		services.AppError(err.Error(), 400, w)
 		return
 	}
 
-	if room.RoomName == "" || room.RoomType == "" {
+	fmt.Println("room info from the frontend", room)
+
+	if roomInputData.RoomName == "" || roomInputData.RoomType == "" {
 		services.AppError("Missing room name or type!", 400, w)
 		return
 	}
 
-	if !room.IsValidRoomCapacity() {
-		services.AppError("Please provide at least the number of adults!", 400, w)
+	if !room.IsValidRoomCapacity(roomInputData.Capacity) {
+		services.AppError("Please provide at least the number of adults", 400, w)
 		return
 	}
 
-	if !room.IsValidRoomPrice() {
-		services.AppError("Please provide the price amount and currency!", 400, w)
+	if !room.IsValidRoomPrice(roomInputData.Price) {
+		services.AppError("Please provide the price amount and currency", 400, w)
 		return
 	}
 

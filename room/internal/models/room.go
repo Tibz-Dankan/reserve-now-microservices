@@ -11,19 +11,19 @@ import (
 var db = config.Db()
 
 func DBAutoMigrate() {
-	err := db.AutoMigrate(&Room{}, &RoomImage{})
+	err := db.AutoMigrate(&Room{}, &RoomImage{}, &RoomCapacity{}, &RoomPrice{}, &RoomPublicity{}, &Amenity{}, &RoomAmenity{}, &RoomBed{})
 	if err != nil {
 		log.Fatal("Failed to make auto migration", err)
 	}
 	fmt.Println("Auto Migration successful")
 }
 
-func (r *Room) getRoomCapacityValue(key string) (int, bool) {
+func (r *Room) getRoomCapacityValue(capacity, key string) (int, bool) {
 
 	var capacityMap map[string]int
-	capacity := r.Capacity
+	// capacity := r.Capacity
 
-	err := json.Unmarshal(capacity, &capacityMap)
+	err := json.Unmarshal([]byte(capacity), &capacityMap)
 	if err != nil {
 		return 0, false
 	}
@@ -32,9 +32,9 @@ func (r *Room) getRoomCapacityValue(key string) (int, bool) {
 	return value, exists
 }
 
-func (r *Room) IsValidRoomCapacity() bool {
-	adults, adultsExist := r.getRoomCapacityValue("adults")
-	children, childrenExist := r.getRoomCapacityValue("children")
+func (r *Room) IsValidRoomCapacity(capacity string) bool {
+	adults, adultsExist := r.getRoomCapacityValue(capacity, "adults")
+	children, childrenExist := r.getRoomCapacityValue(capacity, "children")
 
 	if !adultsExist || adults <= 0 {
 		return false
@@ -46,12 +46,12 @@ func (r *Room) IsValidRoomCapacity() bool {
 	return true
 }
 
-func (r *Room) getRoomPriceValue(key string) (int, bool) {
+func (r *Room) getRoomPriceValue(price, key string) (int, bool) {
 
 	var priceMap map[string]int
-	price := r.Price
+	// price := r.Price
 
-	err := json.Unmarshal(price, &priceMap)
+	err := json.Unmarshal([]byte(price), &priceMap)
 	if err != nil {
 		return 0, false
 	}
@@ -60,9 +60,9 @@ func (r *Room) getRoomPriceValue(key string) (int, bool) {
 	return value, exists
 }
 
-func (r *Room) IsValidRoomPrice() bool {
-	amount, amountExist := r.getRoomPriceValue("amount")
-	currency, currencyExist := r.getRoomPriceValue("currency")
+func (r *Room) IsValidRoomPrice(price string) bool {
+	amount, amountExist := r.getRoomPriceValue(price, "amount")
+	currency, currencyExist := r.getRoomPriceValue(price, "currency")
 
 	if !amountExist || !currencyExist || amount <= 0 || currency <= 0 {
 		return false
@@ -125,36 +125,36 @@ func (r *Room) Delete(id int) error {
 	return nil
 }
 
-func (r *Room) IsPublished() bool {
+// func (r *Room) IsPublished() bool {
 
-	var publish map[string]bool
-	err := json.Unmarshal(r.Publish, &publish)
-	if err != nil {
-		fmt.Println("error : ", err)
-	}
+// 	var publish map[string]bool
+// 	err := json.Unmarshal(r.Publish, &publish)
+// 	if err != nil {
+// 		fmt.Println("error : ", err)
+// 	}
 
-	isPublished := publish["isPublished"]
+// 	isPublished := publish["isPublished"]
 
-	return isPublished
-}
+// 	return isPublished
+// }
 
-func (r *Room) UpdateAsPublished(id int) error {
+// func (r *Room) UpdateAsPublished(id int) error {
 
-	r.Publish = JSON([]byte(`{"isPublished": true, "isPublishedAt": time.now()}`))
+// 	r.Publish = JSON([]byte(`{"isPublished": true, "isPublishedAt": time.now()}`))
 
-	err := db.Model(&Room{}).Where("id = ?", id).Update("publish", r.Publish).Error
-	if err != nil {
-		return err
-	}
+// 	err := db.Model(&Room{}).Where("id = ?", id).Update("publish", r.Publish).Error
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-func (r *Room) UpdateAsUnPublished(id int) error {
+// func (r *Room) UpdateAsUnPublished(id int) error {
 
-	r.Publish = JSON([]byte(`{"isPublished": false, "isPublishedAt": ""}`))
+// 	r.Publish = JSON([]byte(`{"isPublished": false, "isPublishedAt": ""}`))
 
-	db.Model(&Room{}).Where("id = ?", id).Update("publish", r.Publish)
+// 	db.Model(&Room{}).Where("id = ?", id).Update("publish", r.Publish)
 
-	return nil
-}
+// 	return nil
+// }
