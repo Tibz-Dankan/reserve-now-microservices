@@ -22,6 +22,7 @@ func postRoomAmenity(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("amenity data", amenity)
 
+	// TODO: get userId from auth
 	// user, ok := r.Context().Value("AuthUser").(middlewares.UserKey)
 	// if !ok {
 	// 	// If user details are not found in the context, handle accordingly
